@@ -1,4 +1,4 @@
-# Linux-Kernel-Process-Tag-Patch
+# Linux Kernel Process Tag Patch
 Linux kernel patch that adds the ability to give processes an arbitrary list of string tags. Child processes inherit parent tags. Processes are tagged using the ptag command line tool. Once tagged processes with a specific tag can be killed or inspected by referencing their tags with the tagkill and tagstat command line tools respectively.
 
 # Compilation & Running
@@ -77,24 +77,12 @@ tagstat `<tag>` OR tagstat `'<expr>'`
    [operator2] is an optional NOT operator:  
        '!', 'not'  
 
-   Operators must be lowercase, `<operator1>` must contain  
-   a space on either side or the expression will be treated  
-   as a tag. In the case of 'not' for [operator2] the 'not'  
-   must be suffixed with a space otherwise the expression   
-   will be treated as a tag. No space is needed for '!'.   
+   Operators must be lowercase, `<operator1>` must contain a space on either side or the expression will be treated as a tag. In the case of 'not' for [operator2] the 'not' must be suffixed with a space otherwise the expression will be treated as a tag. No space is needed for '!'.
 
-   The NOT operator has highest preecendence, all other  
-   operators have equal preecendecnce. Thus expressions  
-   containing more than one type of operator (excluding NOT)  
-   should be contained in parenthesis so that the order of  
-   operations is clear. Without parenthesis, leftmost  
-   expressions will be evaluated first.  
+   The NOT operator has highest preecendence, all other operators have equal preecendecnce. Thus expressions containing more than one type of operator (excluding NOT) should be contained in parenthesis so that the order of operations is clear. Without parenthesis, leftmost expressions will be evaluated first.  
 
-   Any parenthesized expression prefixed with a '%' will be  
-   treated as a tag literal. This is so tags containing  
-   operators and whitespace can be specified.  
+   Any parenthesized expression prefixed with a '%' will be treated as a tag literal. This is so tags containing operators and whitespace can be specified.  
 
    e.g. %(tagwith || and !!)  
 
-   Tags cannot contain percent signs or parenthesis unless  
-   escaped.  
+   Tags cannot contain percent signs or parenthesis unless escaped.  
