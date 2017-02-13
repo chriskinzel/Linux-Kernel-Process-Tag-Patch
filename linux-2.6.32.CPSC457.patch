@@ -1,0 +1,1024 @@
+diff -prauN linux-2.6.32.22-PRISTINE/arch/x86/include/asm/unistd_32.h linux-2.6.32.22/arch/x86/include/asm/unistd_32.h
+--- linux-2.6.32.22-PRISTINE/arch/x86/include/asm/unistd_32.h	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/arch/x86/include/asm/unistd_32.h	2016-06-12 22:27:28.875660830 -0600
+@@ -342,10 +342,11 @@
+ #define __NR_pwritev		334
+ #define __NR_rt_tgsigqueueinfo	335
+ #define __NR_perf_event_open	336
++#define __NR_sys_ptag		337
+ 
+ #ifdef __KERNEL__
+ 
+-#define NR_syscalls 337
++#define NR_syscalls 338
+ 
+ #define __ARCH_WANT_IPC_PARSE_VERSION
+ #define __ARCH_WANT_OLD_READDIR
+diff -prauN linux-2.6.32.22-PRISTINE/arch/x86/include/asm/unistd_64.h linux-2.6.32.22/arch/x86/include/asm/unistd_64.h
+--- linux-2.6.32.22-PRISTINE/arch/x86/include/asm/unistd_64.h	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/arch/x86/include/asm/unistd_64.h	2016-06-12 22:28:04.403691626 -0600
+@@ -661,6 +661,8 @@ __SYSCALL(__NR_pwritev, sys_pwritev)
+ __SYSCALL(__NR_rt_tgsigqueueinfo, sys_rt_tgsigqueueinfo)
+ #define __NR_perf_event_open			298
+ __SYSCALL(__NR_perf_event_open, sys_perf_event_open)
++#define __NR_sys_ptag				299
++__SYSCALL(__NR_sys_ptag, sys_ptag)
+ 
+ #ifndef __NO_STUBS
+ #define __ARCH_WANT_OLD_READDIR
+diff -prauN linux-2.6.32.22-PRISTINE/arch/x86/kernel/syscall_table_32.S linux-2.6.32.22/arch/x86/kernel/syscall_table_32.S
+--- linux-2.6.32.22-PRISTINE/arch/x86/kernel/syscall_table_32.S	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/arch/x86/kernel/syscall_table_32.S	2016-06-12 22:27:02.459659658 -0600
+@@ -336,3 +336,4 @@ ENTRY(sys_call_table)
+ 	.long sys_pwritev
+ 	.long sys_rt_tgsigqueueinfo	/* 335 */
+ 	.long sys_perf_event_open
++	.long sys_ptag		
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r100_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/r100_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r100_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/r100_reg_safe.h	2016-06-14 20:40:34.672977578 -0600
+@@ -0,0 +1,28 @@
++static const unsigned r100_reg_safe_bm[102] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFCF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFF9F, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x38E7FE1F, 0xFFC3FF8E, 0x7FF8FFFF, 0xFFFF803C,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFEFFFF, 0xFFFFFFFF,
++	0x00000000, 0xFFFFFFFD, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFCFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFEF,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r200_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/r200_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r200_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/r200_reg_safe.h	2016-06-14 20:40:31.047977583 -0600
+@@ -0,0 +1,28 @@
++static const unsigned r200_reg_safe_bm[102] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFE7FE1F, 0xF003FFFF, 0x7EFFFFFF, 0xFFFF803C,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFEFCE, 0xFFFEFFFF, 0xFFFFFFFE,
++	0x020E0FF0, 0xFFFC83FD, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFBFFFF, 0xEFFCFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xDFDFDFDF, 0x3FFDDFDF, 0xFFFFFFFF, 0xFFFFFF7F,
++	0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0x00000000,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFE3F, 0xFFFFFFEF,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r300_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/r300_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/r300_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/r300_reg_safe.h	2016-06-14 20:40:34.769977579 -0600
+@@ -0,0 +1,42 @@
++static const unsigned r300_reg_safe_bm[159] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFF03F,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFEFCE, 0xF00EBFFF, 0x007C0000,
++	0xF0000078, 0xFF000009, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFF7FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFC78, 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFF,
++	0x38FF8F50, 0xFFF88082, 0xF000000C, 0xFAE009FF,
++	0x0000FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000,
++	0x00000000, 0x0000C100, 0x00000000, 0x00000000,
++	0x00000000, 0x00000000, 0x00000000, 0x00000000,
++	0x00000000, 0xFFFF0000, 0xFFFFFFFF, 0xFF80FFFF,
++	0x00000000, 0x00000000, 0x00000000, 0x00000000,
++	0x0003FC01, 0xFFFFFCF8, 0xFF800B19,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rn50_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/rn50_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rn50_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/rn50_reg_safe.h	2016-06-14 20:40:34.677977578 -0600
+@@ -0,0 +1,28 @@
++static const unsigned rn50_reg_safe_bm[102] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rs600_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/rs600_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rs600_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/rs600_reg_safe.h	2016-06-14 20:40:27.667977586 -0600
+@@ -0,0 +1,57 @@
++static const unsigned rs600_reg_safe_bm[219] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFF03F,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFEFCE, 0xF00EBFFF, 0x007C0000,
++	0xF0000078, 0xFF000009, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFF7FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFC78, 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFF,
++	0x38FF8F50, 0xFFF88082, 0xF000000C, 0xFAE009FF,
++	0x0000FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000,
++	0x00000000, 0x0000C100, 0x00000000, 0x00000000,
++	0x00000000, 0x00000000, 0x00000000, 0x00000000,
++	0x00000000, 0xFFFF0000, 0xFFFFFFFF, 0xFF80FFFF,
++	0x00000000, 0x00000000, 0x00000000, 0x00000000,
++	0x0003FC01, 0xFFFFFCF8, 0xFF800B19, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rv515_reg_safe.h linux-2.6.32.22/drivers/gpu/drm/radeon/rv515_reg_safe.h
+--- linux-2.6.32.22-PRISTINE/drivers/gpu/drm/radeon/rv515_reg_safe.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/drivers/gpu/drm/radeon/rv515_reg_safe.h	2016-06-14 20:40:28.299977586 -0600
+@@ -0,0 +1,57 @@
++static const unsigned rv515_reg_safe_bm[219] = {
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x17FF1FFF, 0xFFFFFFFC, 0xFFFFFFFF, 0xFF30FFBF,
++	0xFFFFFFF8, 0xC3E6FFFF, 0xFFFFF6DF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFF03F,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFEFCE, 0xF00EBFFF, 0x007C0000,
++	0xF0000038, 0xFF000009, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFF7FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0x1FFFFC78, 0xFFFFE000, 0xFFFFFFFE, 0xFFFFFFFF,
++	0x38CF8F50, 0xFFF88082, 0xFF0000FC, 0xFAE009FF,
++	0x0000FFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000,
++	0xFFFF8CFC, 0xFFFFC1FF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF80FFFF,
++	0x00000000, 0x00000000, 0x00000000, 0x00000000,
++	0x0003FC01, 0x3FFFFCF8, 0xFF800B19, 0xFFDFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
++};
+diff -prauN linux-2.6.32.22-PRISTINE/fs/proc/array.c linux-2.6.32.22/fs/proc/array.c
+--- linux-2.6.32.22-PRISTINE/fs/proc/array.c	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/fs/proc/array.c	2016-06-12 22:24:58.188729946 -0600
+@@ -50,6 +50,8 @@
+  * Al Viro & Jeff Garzik :  moved most of the thing into base.c and
+  *			 :  proc_misc.c. The rest may eventually go into
+  *			 :  base.c too.
++ *
++ * Chris Kinzel      :  made get_task_state() globally accessible
+  */
+ 
+ #include <linux/types.h>
+@@ -142,7 +144,7 @@ static const char *task_state_array[] = 
+ 	"X (dead)"		/* 32 */
+ };
+ 
+-static inline const char *get_task_state(struct task_struct *tsk)
++const char *get_task_state(struct task_struct *tsk)
+ {
+ 	unsigned int state = (tsk->state & TASK_REPORT) | tsk->exit_state;
+ 	const char **p = &task_state_array[0];
+diff -prauN linux-2.6.32.22-PRISTINE/include/linux/init_task.h linux-2.6.32.22/include/linux/init_task.h
+--- linux-2.6.32.22-PRISTINE/include/linux/init_task.h	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/include/linux/init_task.h	2016-06-12 22:25:55.180606030 -0600
+@@ -177,6 +177,10 @@ extern struct cred init_cred;
+ 		[PIDTYPE_SID]  = INIT_PID_LINK(PIDTYPE_SID),		\
+ 	},								\
+ 	.dirties = INIT_PROP_LOCAL_SINGLE(dirties),			\
++    .tags = {                               \
++        .list = LIST_HEAD_INIT(tsk.tags.list),           \
++    },                                      \
++    .tag_lock = RW_LOCK_UNLOCKED,                   \
+ 	INIT_IDS							\
+ 	INIT_PERF_EVENTS(tsk)						\
+ 	INIT_TRACE_IRQFLAGS						\
+diff -prauN linux-2.6.32.22-PRISTINE/include/linux/sched.h linux-2.6.32.22/include/linux/sched.h
+--- linux-2.6.32.22-PRISTINE/include/linux/sched.h	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/include/linux/sched.h	2016-06-12 22:25:47.181577860 -0600
+@@ -94,6 +94,8 @@ struct sched_param {
+ 
+ #include <asm/processor.h>
+ 
++#include <ptag/ptag.h>
++
+ struct exec_domain;
+ struct futex_pi_state;
+ struct robust_list_head;
+@@ -1547,6 +1549,10 @@ struct task_struct {
+ 	/* bitmask of trace recursion */
+ 	unsigned long trace_recursion;
+ #endif /* CONFIG_TRACING */
++    
++    rwlock_t tag_lock;                  /* tags lock */
++    struct tag_struct tags;             /* list of tags belonging to this process */
++    struct list_head tag_task_list;     /* links all tagged processes together */
+ };
+ 
+ /* Future-safe accessor for struct task_struct's cpus_allowed. */
+diff -prauN linux-2.6.32.22-PRISTINE/include/linux/syscalls.h linux-2.6.32.22/include/linux/syscalls.h
+--- linux-2.6.32.22-PRISTINE/include/linux/syscalls.h	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/include/linux/syscalls.h	2016-06-12 22:28:39.500674180 -0600
+@@ -885,4 +885,7 @@ asmlinkage long sys_perf_event_open(
+ asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
+ 			unsigned long prot, unsigned long flags,
+ 			unsigned long fd, unsigned long pgoff);
++
++asmlinkage long sys_ptag(pid_t pid, const char __user *tag_name, char mode);
++
+ #endif
+diff -prauN linux-2.6.32.22-PRISTINE/include/ptag/ptag.h linux-2.6.32.22/include/ptag/ptag.h
+--- linux-2.6.32.22-PRISTINE/include/ptag/ptag.h	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/include/ptag/ptag.h	2016-06-12 22:25:26.838562228 -0600
+@@ -0,0 +1,23 @@
++#ifndef _LINUX_PTAG_H
++#define _LINUX_PTAG_H
++
++#include <linux/list.h>
++#include <linux/spinlock.h>
++
++/*
++ * Tags are stored as doubly linked lists using the implementation provided by
++ * the linux kernel. Each tag_struct also contains the tag string and the length
++ * of that string, this means that tag_structs are not a fixed size.
++ */
++struct tag_struct {
++    struct list_head list;
++    
++    // tag_len includes null terminator
++    long tag_len;
++    char tag[0];
++};
++
++extern rwlock_t ptaglist_lock;
++extern struct list_head ptaglist;
++
++#endif
+diff -prauN linux-2.6.32.22-PRISTINE/init/main.c linux-2.6.32.22/init/main.c
+--- linux-2.6.32.22-PRISTINE/init/main.c	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/init/main.c	2016-06-12 22:24:28.995833384 -0600
+@@ -98,6 +98,8 @@ static inline void mark_rodata_ro(void) 
+ extern void tc_init(void);
+ #endif
+ 
++extern void ptag_init(void);
++
+ enum system_states system_state __read_mostly;
+ EXPORT_SYMBOL(system_state);
+ 
+@@ -677,6 +679,8 @@ asmlinkage void __init start_kernel(void
+ 	sfi_init_late();
+ 
+ 	ftrace_init();
++    
++    ptag_init();
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+ 	rest_init();
+diff -prauN linux-2.6.32.22-PRISTINE/kernel/fork.c linux-2.6.32.22/kernel/fork.c
+--- linux-2.6.32.22-PRISTINE/kernel/fork.c	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/kernel/fork.c	2016-06-12 22:23:57.122814957 -0600
+@@ -138,6 +138,9 @@ struct kmem_cache *vm_area_cachep;
+ /* SLAB cache for mm_struct structures (tsk->mm) */
+ static struct kmem_cache *mm_cachep;
+ 
++extern void copy_ptags(struct task_struct *task, struct task_struct *src);
++extern void release_ptags(struct task_struct *task);
++
+ static void account_kernel_stack(struct thread_info *ti, int account)
+ {
+ 	struct zone *zone = page_zone(virt_to_page(ti));
+@@ -152,6 +155,7 @@ void free_task(struct task_struct *tsk)
+ 	free_thread_info(tsk->stack);
+ 	rt_mutex_debug_task_free(tsk);
+ 	ftrace_graph_exit_task(tsk);
++    release_ptags(tsk);
+ 	free_task_struct(tsk);
+ }
+ EXPORT_SYMBOL(free_task);
+@@ -1158,6 +1162,9 @@ static struct task_struct *copy_process(
+ 	retval = copy_thread(clone_flags, stack_start, stack_size, p, regs);
+ 	if (retval)
+ 		goto bad_fork_cleanup_io;
++    
++    // copy parents ptags
++    copy_ptags(p, current);
+ 
+ 	if (pid != &init_struct_pid) {
+ 		retval = -ENOMEM;
+diff -prauN linux-2.6.32.22-PRISTINE/Makefile linux-2.6.32.22/Makefile
+--- linux-2.6.32.22-PRISTINE/Makefile	2010-09-20 14:38:16.000000000 -0600
++++ linux-2.6.32.22/Makefile	2016-06-12 22:23:37.835832855 -0600
+@@ -1,8 +1,8 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 32
+-EXTRAVERSION = .22
+-NAME = Man-Eating Seals of Antiquity
++EXTRAVERSION = CPSC457-A2
++NAME = CPSC457 Spring
+ 
+ # *DOCUMENTATION*
+ # To see a list of typical targets execute "make help"
+@@ -644,7 +644,7 @@ export mod_strip_cmd
+ 
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+-core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
++core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/ ptag/
+ 
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+diff -prauN linux-2.6.32.22-PRISTINE/ptag/Makefile linux-2.6.32.22/ptag/Makefile
+--- linux-2.6.32.22-PRISTINE/ptag/Makefile	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/ptag/Makefile	2016-06-12 22:23:14.612932011 -0600
+@@ -0,0 +1 @@
++obj-y := ptag.o
+diff -prauN linux-2.6.32.22-PRISTINE/ptag/ptag.c linux-2.6.32.22/ptag/ptag.c
+--- linux-2.6.32.22-PRISTINE/ptag/ptag.c	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.6.32.22/ptag/ptag.c	2016-06-12 22:23:14.613908222 -0600
+@@ -0,0 +1,544 @@
++//
++// Assignment 2 - Part A - PTAG system call
++// ---------------------------------------------------------------------------------------------------
++//
++// Name:            Chris Kinzel
++// Tutorial:                 T03
++// ID:                  10160447
++//
++// ptag.c
++//
++// Description:
++// ---------------------------------------------------------------------------------------------------
++//
++// Implementation of a system call that provides the ability to add and a remove a string based tag
++// to any given process (as long as the calling process euid matches the uid of the process to be tagged
++// with the exception of root who can tag any process). Each tagged process stores its tags in a doubly
++// linked list. Child processes inherit a copy of the tags its parent had. A doubly linked list
++// 'ptaglist' contains references to all tagged process in sorted ascending order relative to pid. User
++// space programs can get information on all currently tagged processes by reading from the pseudo
++// device /proc/ptag
++//
++// The doubly linked list implementation of the process tagging assumes that the length of the tags and
++// the number of tags given to any process will generally be relatively small. A smarter implementation
++// would use hash comparsions instead of strncmp and only use strncmp when the hash values are equal.
++// Furthermore once the number of tags exceeds a certain threshold switching to a hash table based
++// implementation would most likely provide a significant improvement in run time.
++//
++// The empty string is considered a valid tag, i.e. a string consisting of a single '\0' character.
++//
++// Citations:
++// ---------------------------------------------------------------------------------------------------
++//   -  The following source was used as an example of how to setup a proc entry
++//
++//      http://www.thegeekstuff.com/2012/04/create-proc-files/
++//
++//   -  Initializing the proc entry when the system loads was based off the tutorial below
++//
++//      http://www.csee.umbc.edu/courses/undergraduate/CMSC421/fall02/burt/projects/howto_add_systemcall.html
++//
++//   - Getting a task_struct from a pid was based off of the following stackoverflow post
++//
++//      http://stackoverflow.com/questions/8547332/kernel-efficient-way-to-find-task-struct-by-pid
++//
++//   - Information about locking in the kernel was used from the link below
++//
++//      https://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/x490.html
++//
++//   - The linux cross reference was used extensively for this assignment
++//
++//      http://lxr.free-electrons.com
++//
++
++
++#include <ptag/ptag.h>
++
++#include <linux/kernel.h>
++#include <linux/linkage.h>
++#include <linux/proc_fs.h>
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/cred.h>
++
++#include <asm/spinlock.h>
++#include <asm/uaccess.h>
++
++
++/*
++ * List of all proccesses containing ptags sorted in ascending order
++ * by pid
++*/
++rwlock_t ptaglist_lock = RW_LOCK_UNLOCKED;
++struct list_head ptaglist = LIST_HEAD_INIT(ptaglist);
++
++// Function to get task_struct from pid
++extern struct task_struct* find_task_by_vpid(pid_t nr);
++
++// Converts task_struct 'state' field to a nice human readable
++// string
++extern const char * get_task_state(struct task_struct *);
++
++// Called when the proc entry is accessed for reading
++static int read_ptags( char *page, char **start, off_t off, int count, int *eof, void *data );
++
++
++/*
++ * Exactly like list_add() but adds the new list item in sorted ascending
++ * order by pid.
++ *
++ * PARAMETERS
++ *   new - the task struct associated with the process to be added to the
++ *         ptag list
++*/
++static void ptag_list_add(struct task_struct *new) {
++    struct  list_head *p;
++    
++    write_lock(&ptaglist_lock);
++    
++    /*
++     * Iterate through all processes in the ptag list to determine where
++     * 'new' should go, essentially insertion sort
++    */
++    list_for_each(p, &ptaglist) {
++        struct task_struct *tsk;
++        
++        tsk = list_entry(p, struct task_struct, tag_task_list);
++        if(new->pid < tsk->pid) {
++            // Found position for 'new'
++            break;
++        }
++    }
++    
++    /*
++     * At this point 'p' points to the position immediately succeding 
++     * the position where 'new' should be. Thus adding 'new' to p->prev
++     * will place 'new' in the correct spot.
++    */
++    list_add(&new->tag_task_list, p->prev);
++    
++    write_unlock(&ptaglist_lock);
++}
++
++
++/*
++ * Creates and sets up a read-only proc entry at /proc/ptags. The
++ * contents of /proc/ptags consists of lines of the form.
++ *
++ * <pid> : <tag> : <process_state>
++ *
++ * that is a process ID number followed by a space followed by a colon
++ * followed by another space followed by the tag string followed by a
++ * space another colon another space followed by the process state and 
++ * finally ending with a newline character and a null terminator. Only
++ * processes that are associated with at least one tag have entries in 
++ * the proc file. A process ID may show up in more than one line if a
++ * process is associated with multiple tags. Lines are ordered by
++ * ascending process ID.
++*/
++void __init ptag_init(void) {
++    struct proc_dir_entry* proc_ptag;
++    
++    // Create read-only proc entry at /proc/ptags
++    proc_ptag = create_proc_entry("ptags", 0444, NULL);
++    if(proc_ptag == NULL) {
++        printk(KERN_WARNING "ptag: proc entry could not be created\n");
++        return;
++    }
++    
++    // Set read callback
++    proc_ptag->read_proc = read_ptags;
++}
++
++
++/*  
++ * Copies the entire tag list from src to tsk. Used for copying
++ * parent tags to child process when forking. Also updates the
++ * global ptag list if applicable. Locks make concurrent access
++ * safe.
++ *
++ * PARAMETERS
++ *   tsk - the task_struct receiving the copy of the tags
++ *   src - the task_struct containing the tags to copy
++ *
++ * NOTE
++ *   If the copying process fails (i.e. memory allocation fails)
++ *   the offending tag is skipped and a copy operation is attempted
++ *   on the next tag, thus as many tags as possible are copied.
++ *   However, it is possible that no tags are copied.
++*/
++void copy_ptags(struct task_struct *tsk, struct task_struct *src) {
++    int has_ptags;
++    
++    tsk->tag_lock = RW_LOCK_UNLOCKED;
++    INIT_LIST_HEAD(&tsk->tags.list);
++    
++    has_ptags = 0;
++    
++    /*
++    * The read lock allows multiple copies to occur concurrently
++    * all reading the same src tags. However any attempt to change
++    * the src tags will block until all tag copy operations are
++    * complete since that requires a write lock.
++    */
++    read_lock(&src->tag_lock);
++    
++    if(!list_empty(&src->tags.list)) {
++        struct tag_struct *p;
++        
++        write_lock(&tsk->tag_lock);
++        
++        list_for_each_entry(p, &src->tags.list, list) {
++            struct tag_struct *cpy_tag;
++            
++            cpy_tag = kmalloc(sizeof(struct tag_struct) + p->tag_len, GFP_KERNEL);
++            if(cpy_tag == NULL) {
++                /*
++                * If memory couldn't be allocated for this tag move
++                * on and try the next tag
++                */
++                
++                continue;
++            }
++            
++            cpy_tag->tag_len = p->tag_len;
++            strncpy(cpy_tag->tag, p->tag, p->tag_len);
++            
++            list_add(&cpy_tag->list, &tsk->tags.list);
++            
++            has_ptags = 1;
++        }
++        
++        write_unlock(&tsk->tag_lock);
++    }
++    
++    read_unlock(&src->tag_lock);
++    
++    if(has_ptags) {
++        // Add task to tag list
++        ptag_list_add(tsk);
++    }
++}
++
++
++/*
++ * Free's all memory associated to a processes tags, called when
++ * the processes task_struct is released or when a clear operation
++ * is requested.
++ *
++ * PARAMETERS
++ *   tsk - the task_struct whose tags are to be free'd
++*/
++void release_ptags(struct task_struct *tsk) {
++    write_lock(&tsk->tag_lock);
++    
++    /*
++     * Check if the process has tags, if so free
++     * the memory they occupy
++    */
++    if(!list_empty(&tsk->tags.list)) {
++        struct tag_struct *p;
++        struct tag_struct *tmp;
++        
++        // Delete task from tag list
++        write_lock(&ptaglist_lock);
++        list_del(&tsk->tag_task_list);
++        write_unlock(&ptaglist_lock);
++        
++        list_for_each_entry_safe(p, tmp, &tsk->tags.list, list) {
++            // Remove tag and free associated memory
++            list_del(&p->list);
++            kfree(p);
++        }
++    }
++    
++    write_unlock(&tsk->tag_lock);
++}
++
++
++/* 
++ * Adds or removes ptags to the process specified by the 'pid' argument
++ * assuming the calling user has ownership of the specified process. 
++ * Uses locks to prevent race conditions due to concurrent access
++ *
++ *  PARAMETERS
++ *   pid      - the process ID of the process to tag
++ *   tag_name - the tag name given as a null terminated string
++ *   mode     - either 'a' to add the given tag to the specified process,
++ *              'r' to remove the given tag if it exists or 'c' to clear
++ *              all tags of the specified process
++ *
++ *  RETURN VALUE
++ *       returns 0 on success, returns non-zero on an error condition,
++ *       return values for errors are described below.
++ *
++ *       1 - Invalid mode argument:  mode argument was not one of 'a', 'r' or 'c'
++ *
++ *       2 - Invalid tag name:       tag_name caused an exception
++ *
++ *       3 - Invalid process ID:     the process ID is not a valid process ID
++ *
++ *       4 - Ownership error:        the calling euid is not equal to the uid
++ *                                   of the process specified by 'pid'
++ *
++ *       5 - Memory error:           kmalloc failed
++ *
++ *  NOTE
++ *       Attempting to remove a tag that does not exist or add a tag that has
++ *       already been added is considered a success and thus 0 is returned.
++*/
++asmlinkage long sys_ptag(pid_t pid, const char __user *tag_name, char mode) {
++    struct tag_struct *new_tag;
++    struct task_struct *tsk;
++    
++    char *tag;
++    long tag_len;
++    
++    long err_code;
++    
++    // Check for invalid arguments
++    if(mode != 'a' && mode != 'r' && mode != 'c') {
++        return 1;
++    }
++    if(tag_name == NULL && mode != 'c') {
++        return 2;
++    }
++    
++    // Attempt to find the task_struct associated with the pid
++    rcu_read_lock();
++    tsk = find_task_by_vpid(pid);
++    if(tsk) {
++        /*
++         * increments a reference count to task so it doesn't get
++         * free'd while in use
++         */
++        
++        get_task_struct(tsk);
++    }
++    rcu_read_unlock();
++    
++    // Check for invalid process ID
++    if(tsk == NULL) {
++        return 3;
++    }
++    
++    /*
++     * Check to see if the calling user owns the specified process
++     * or is root
++    */
++    if(current_euid() != 0 && current_euid() != task_uid(tsk)) {
++        err_code = 4;
++        goto exit_and_put;
++    }
++    
++    /*
++     * The 'c' mode simply clears all tags for the specified process,
++     * to do this the release_ptags() function is simply called as
++     * would be on process exit
++    */
++    if(mode == 'c') {
++        release_ptags(tsk);
++        
++        /*
++         * Although this is normally used for error conditions
++         * setting err_code = 0 is equivalent to exit success
++        */
++        err_code = 0;
++        goto exit_and_put;
++    }
++    
++    // Get tag length
++    tag_len = strlen_user(tag_name);
++    if(tag_len == 0) {
++        err_code = 2;
++        goto exit_and_put;
++    }
++    
++    /*
++     * Allocate memory and create new tag_struct this is done regardless
++     * of the mode argument since the string has to be copied from user
++     * space to do any comparsions anyways
++     */
++    new_tag = kmalloc(sizeof(struct tag_struct) + tag_len, GFP_KERNEL);
++    if(new_tag == NULL) {
++        err_code = 5;
++        goto exit_and_put;
++    }
++    
++    // Copy string from user space into tag_struct
++    tag = (char*)new_tag + sizeof(struct tag_struct);
++    if(strncpy_from_user(tag, tag_name, tag_len) != tag_len-1) {
++        // Copy failed, release resources and return error code
++        err_code = 2;
++        goto exit_and_free;
++    }
++    new_tag->tag_len = tag_len;
++    
++    if(mode == 'a') {
++        // Check to see if this process already has a matching tag
++        struct tag_struct *p;
++        int tag_found;
++        
++        // Synchronize access to process tags
++        write_lock(&tsk->tag_lock);
++        
++        // If this process was not tagged before add it to the taglist
++        if(list_empty(&tsk->tags.list)) {
++            ptag_list_add(tsk);
++        }
++        
++        tag_found = 0;
++        list_for_each_entry(p, &tsk->tags.list, list) {
++            if(strncmp(p->tag, tag, (p->tag_len < tag_len) ? p->tag_len : tag_len) == 0) {
++                // Found match, release memory
++                kfree(new_tag);
++                tag_found = 1;
++                
++                break;
++            }
++        }
++        
++        if(!tag_found) {
++            list_add(&new_tag->list, &tsk->tags.list);
++        }
++        
++        write_unlock(&tsk->tag_lock);
++    } else {     // mode == 'r'
++        // Find tag and remove it if it exists
++        struct tag_struct *p;
++        struct tag_struct *tmp;
++        
++        // Synchronize access to process tags
++        write_lock(&tsk->tag_lock);
++        
++        list_for_each_entry_safe(p, tmp, &tsk->tags.list, list) {
++            if(strncmp(p->tag, tag, (p->tag_len < tag_len) ? p->tag_len : tag_len) == 0) {  // Found matching tag
++                // Remove tag and free associated memory
++                list_del(&p->list);
++                kfree(p);
++                
++                // If the process no longer has any tags remove it from the taglist
++                if(list_empty(&tsk->tags.list)) {
++                    write_lock(&ptaglist_lock);
++                    list_del(&tsk->tag_task_list);
++                    write_unlock(&ptaglist_lock);
++                }
++                
++                break;
++            }
++        }
++        
++        write_unlock(&tsk->tag_lock);
++        
++        // Free tag struct used for holding the tag string
++        kfree(new_tag);
++    }
++    
++    // decrement reference count to task
++    put_task_struct(tsk);
++    
++    return 0;
++    
++exit_and_put:
++    put_task_struct(tsk);
++    return err_code;
++    
++exit_and_free:
++    put_task_struct(tsk);
++    kfree(new_tag);
++    return err_code;
++}
++
++
++/*
++ * Called when the contents of the pseudo device /proc/ptags are read. The
++ * contents of /proc/ptags consists of lines of the form
++ *
++ * <pid> : <tag> : <process_state>
++ *
++ * that is a process ID number followed by a space followed by a colon
++ * followed by another space followed by the tag string followed by a
++ * space another colon another space followed by the process state and
++ * finally ending with a newline character and a null terminator. Only 
++ * processes that are associated with at least one tag have entries in
++ * the proc file. A process ID may show up in more than one line if a
++ * process is associated with multiple tags. Lines are ordered by
++ * ascending process ID.
++ *
++ * When called, read_ptags() will place at most count bytes of formatted
++ * text into the buffer 'page' in the format described above and then
++ * set *eof to indicate end of file.
++ *
++ * The 'start', 'data' and 'off' parameters are ignored.
++*/
++int read_ptags( char *page, char **start, off_t off, int count, int *eof, void *data ) {
++    struct list_head *p;
++    int len;
++    
++    // Only support reads from the beginning of the psuedo device
++    if(off != 0) {
++        *eof = 1;
++        return 0;
++    }
++    
++    read_lock(&ptaglist_lock);
++    
++    len = 0;
++    list_for_each(p, &ptaglist) {   // For all tagged processes
++        struct task_struct *tsk;
++        struct tag_struct  *tag;
++        
++        tsk = list_entry(p, struct task_struct, tag_task_list);
++        
++        /* 
++         * Check to make sure the current user owns this process
++         * or is root as we do not random users seeing other 
++         * users tagged processes
++        */
++        if(current_euid() != 0 && current_euid() != task_uid(tsk)) {
++            continue;
++        }
++        
++        read_lock(&tsk->tag_lock);
++        
++        list_for_each_entry(tag, &tsk->tags.list, list) {   // For all tags belonging to process 'tsk'
++            int tmp_len;
++            tmp_len = snprintf(page + len, count, "%ld : %s : %s\n", (long)tsk->pid, tag->tag, get_task_state(tsk))+1;
++            
++            len   += tmp_len;
++            count -= tmp_len;
++            
++            if(count <= 0) {
++                read_unlock(&tsk->tag_lock);
++                
++                /*
++                 * Instead of snprintf returning the truncated count excluding the
++                 * NULL terminator, it returns the length of the string 
++                 * (excluding the null terminator) that would've been placed in 
++                 * the buffer had there been enough space for the whole string. 
++                 * Therefore len has to recalculated so that len <= count.
++                 *
++                 * To do this the current count is simply added to len since 
++                 * count <= 0 at this point len will either not change or decrease
++                 * as required.
++                 *
++                 * https://www.kernel.org/doc/htmldocs/kernel-api/API-snprintf.html
++                */
++                len += count;
++                
++                goto done_reading;
++            }
++        }
++        
++        read_unlock(&tsk->tag_lock);
++    }
++    
++done_reading:
++    read_unlock(&ptaglist_lock);
++    
++    *eof = 1;
++    
++    return len;
++}
