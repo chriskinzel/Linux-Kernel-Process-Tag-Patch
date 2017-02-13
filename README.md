@@ -9,7 +9,7 @@ User level program to add and remove tags to any given process owned by the call
 
 ptag `<pid>` -a `<tag>` [tag2 ...]  
             OR  
-            ptag <pid> -r [tag1 ...]  
+            ptag `<pid>` -r [tag1 ...]  
 
             Using -r with no tags removes all  
             tags from the specified process.  
@@ -17,14 +17,14 @@ ptag `<pid>` -a `<tag>` [tag2 ...]
 # tagkill usage
 Utillity that kills each process (kill -9) who's ptags match a given boolean expression  
 
-tagkill <tag> OR tagkill '<expr>'  
+tagkill `<tag>` OR tagkill `'<expr>'`  
 
-   Where <expr> is a boolean expression of the form:  
-       [operator2] <expr> <operator1> [operator2] <expr>  
+   Where `<expr>` is a boolean expression of the form:  
+       [operator2] `<expr>` `<operator1>` [operator2] `<expr>`  
    OR  
-       <tag>  
+       `<tag>`  
 
-   <operator1> can be any of the following boolean operators:  
+   `<operator1>` can be any of the following boolean operators:  
        '&&', 'and', '||', 'or', '^^', 'xor'  
 
    [operator2] is an optional NOT operator:  
@@ -56,28 +56,28 @@ tagkill <tag> OR tagkill '<expr>'
 # tagstat usage
 Utillity that prints a table to stdout listing all processID-tag mappings for processes that the user currently owns. Information is scraped from /proc/ptags, formatting of /proc/ptags is preserved i.e. lines of the form
 
- <pid> : <tag> : <process_state>  
+ `<pid>` : `<tag>` : `<process_state>`   
 
 that is a process ID number followed by a space followed by a colon followed by another space followed by the tag string followed by a space another colon another space followed by the process state and finally ending with a newline character and a null terminator. Only processes that are associated with at least one tag have entries in the proc file. A process ID may show up in more than one line if a process is associated with multiple tags. Lines are ordered by ascending process ID.
 
-tagstat <tag> OR tagstat '<expr>'  
+tagstat `<tag>` OR tagstat `'<expr>'`  
 
    passing --help will print this usage information, thus if  
    you wish to use --help as tag it must be encased in either  
    parenthesis or escaped, see below. 
 
-   Where <expr> is a boolean expression of the form:  
-       [operator2] <expr> <operator1> [operator2] <expr>  
+   Where `<expr>` is a boolean expression of the form:  
+       [operator2] `<expr>` `<operator1>` [operator2] `<expr>`  
    OR  
-       <tag>  
+       `<tag>`  
 
-   <operator1> can be any of the following boolean operators:  
+   `<operator1>` can be any of the following boolean operators:  
        '&&', 'and', '||', 'or', '^^', 'xor'  
 
    [operator2] is an optional NOT operator:  
        '!', 'not'  
 
-   Operators must be lowercase, <operator1> must contain  
+   Operators must be lowercase, `<operator1>` must contain  
    a space on either side or the expression will be treated  
    as a tag. In the case of 'not' for [operator2] the 'not'  
    must be suffixed with a space otherwise the expression   
