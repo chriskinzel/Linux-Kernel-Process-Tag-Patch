@@ -30,27 +30,27 @@ Utillity that kills each process (kill -9) who's ptags match a given boolean exp
     [operator2] is an optional NOT operator:  
        '!', 'not'  
 
-       Operators must be lowercase, <operator1> must contain
-       a space on either side or the expression will be treated
-       as a tag. In the case of 'not' for [operator2] the 'not'
-       must be suffixed with a space otherwise the expression
-       will be treated as a tag. No space is needed for '!'.
+    Operators must be lowercase, <operator1> must contain
+    a space on either side or the expression will be treated
+    as a tag. In the case of 'not' for [operator2] the 'not'
+    must be suffixed with a space otherwise the expression
+    will be treated as a tag. No space is needed for '!'.
 
-       The NOT operator has highest preecendence, all other
-       operators have equal preecendecnce. Thus expressions
-       containing more than one type of operator (excluding NOT)
-       should be contained in parenthesis so that the order of
-       operations is clear. Without parenthesis, leftmost
-       expressions will be evaluated first.
+    The NOT operator has highest preecendence, all other
+    operators have equal preecendecnce. Thus expressions
+    containing more than one type of operator (excluding NOT)
+    should be contained in parenthesis so that the order of
+    operations is clear. Without parenthesis, leftmost
+    expressions will be evaluated first.
 
-       Any parenthesized expression prefixed with a '%' will be
-       treated as a tag literal. This is so tags containing
-       operators and whitespace can be specified.
+    Any parenthesized expression prefixed with a '%' will be
+    treated as a tag literal. This is so tags containing
+    operators and whitespace can be specified.
 
-       e.g. %(tagwith || and !!)
+    e.g. %(tagwith || and !!)
 
-       Tags cannot contain percent signs or parenthesis unless
-       escaped.
+    Tags cannot contain percent signs or parenthesis unless
+    escaped.
 
 
 # tagstat usage
@@ -60,29 +60,41 @@ Utillity that prints a table to stdout listing all processID-tag mappings for pr
 
 that is a process ID number followed by a space followed by a colon followed by another space followed by the tag string followed by a space another colon another space followed by the process state and finally ending with a newline character and a null terminator. Only processes that are associated with at least one tag have entries in the proc file. A process ID may show up in more than one line if a process is associated with multiple tags. Lines are ordered by ascending process ID.
 
-tagstat `<tag>` OR tagstat `'<expr>'`  
+    tagstat `<tag>` OR tagstat `'<expr>'`  
 
-   passing --help will print this usage information, thus if  
-   you wish to use --help as tag it must be encased in either  
-   parenthesis or escaped, see below. 
+    passing --help will print this usage information, thus if  
+    you wish to use --help as tag it must be encased in either  
+    parenthesis or escaped, see below. 
 
-   Where `<expr>` is a boolean expression of the form:  
-       [operator2] `<expr>` `<operator1>` [operator2] `<expr>`  
-   OR  
-       `<tag>`  
+    Where `<expr>` is a boolean expression of the form:  
+        [operator2] `<expr>` `<operator1>` [operator2] `<expr>`  
+    OR  
+        `<tag>`  
 
-   `<operator1>` can be any of the following boolean operators:  
+    `<operator1>` can be any of the following boolean operators:  
        '&&', 'and', '||', 'or', '^^', 'xor'  
 
-   [operator2] is an optional NOT operator:  
+    [operator2] is an optional NOT operator:  
        '!', 'not'  
 
-   Operators must be lowercase, `<operator1>` must contain a space on either side or the expression will be treated as a tag. In the case of 'not' for [operator2] the 'not' must be suffixed with a space otherwise the expression will be treated as a tag. No space is needed for '!'.
+    Operators must be lowercase, <operator1> must contain
+    a space on either side or the expression will be treated
+    as a tag. In the case of 'not' for [operator2] the 'not'
+    must be suffixed with a space otherwise the expression
+    will be treated as a tag. No space is needed for '!'.
 
-   The NOT operator has highest preecendence, all other operators have equal preecendecnce. Thus expressions containing more than one type of operator (excluding NOT) should be contained in parenthesis so that the order of operations is clear. Without parenthesis, leftmost expressions will be evaluated first.  
+    The NOT operator has highest preecendence, all other
+    operators have equal preecendecnce. Thus expressions
+    containing more than one type of operator (excluding NOT)
+    should be contained in parenthesis so that the order of
+    operations is clear. Without parenthesis, leftmost
+    expressions will be evaluated first.
 
-   Any parenthesized expression prefixed with a '%' will be treated as a tag literal. This is so tags containing operators and whitespace can be specified.  
+    Any parenthesized expression prefixed with a '%' will be
+    treated as a tag literal. This is so tags containing
+    operators and whitespace can be specified.
 
-   e.g. %(tagwith || and !!)  
+    e.g. %(tagwith || and !!)
 
-   Tags cannot contain percent signs or parenthesis unless escaped.  
+    Tags cannot contain percent signs or parenthesis unless
+    escaped.
