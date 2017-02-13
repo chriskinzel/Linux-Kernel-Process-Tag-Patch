@@ -7,7 +7,7 @@ Each of the command line tools ptag, tagkill, and tagstat can be compiled by usi
 # ptag usage
 User level program to add and remove tags to any given process owned by the calling user. Interacts with PTAG system call.
 
-ptag <pid> -a <tag> [tag2 ...]  
+ptag `<pid>` -a `<tag>` [tag2 ...]  
             OR  
             ptag <pid> -r [tag1 ...]  
 
