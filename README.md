@@ -1,5 +1,5 @@
 # Linux Kernel Process Tag Patch
-Linux kernel patch that adds the ability to give processes an arbitrary list of string tags. Child processes inherit parent tags. Processes are tagged using the ptag command line tool. Once tagged processes with a specific tag can be killed or inspected by referencing their tags with the tagkill and tagstat command line tools respectively.
+Linux kernel patch that adds the ability to give processes an arbitrary list of string tags. Child processes inherit parent tags. Processes are tagged using the ptag command line tool. Once tagged processes with a specific tag can be killed or inspected by referencing their tags with the tagkill and tagstat command line tools respectively. tagstat and tagkill utilities support a context free grammar that permits arbitrary boolean expressions.
 
 # Compilation & Running
 Each of the command line tools ptag, tagkill, and tagstat can be compiled by using the respective makefile and a make all command in the associated directory. The Linux kernel code is given as a patch file that can be applied to a linux kernel source tree after which compilation and running of the compiled kernel allows the command line tools to be used.
